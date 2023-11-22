@@ -95,7 +95,7 @@ module.exports = {
     {
       commandBuilder: new SlashCommandBuilder()
         .setName('ap-set-alias')
-        .setDescription('Associate your discord user with a specified alias')
+        .setDescription('Associate your Discord user with a specified alias')
         .addStringOption((opt) => opt
           .setName('alias')
           .setDescription('Your new alias')
@@ -120,7 +120,7 @@ module.exports = {
     {
       commandBuilder: new SlashCommandBuilder()
         .setName('ap-unset-alias')
-        .setDescription('Disassociate your discord user with a specified alias')
+        .setDescription('Disassociate your Discord user with a specified alias')
         .addStringOption((opt) => opt
           .setName('alias')
           .setDescription('Alias to disassociate from')
@@ -137,9 +137,49 @@ module.exports = {
           });
         }
 
+        let channelInterface = interaction.client.tempData.apInterfaces.get(interaction.channel.id)
+        let aliases = channelInterface.getAliases()
+        
+        if (!aliases.has(alias)) {
+          return interaction.reply(`Alias ${alias} is not associated with anyone.`);
+        }
+        
+        let associatedUser = aliases.get(alias)
+        if (associatedUser != interaction.user) {
+          return interaction.reply(`Alias ${alias} is associated with ${associatedUser}, not you.`);
+        }
+        
         // Disassociate the user from the specified alias
-        interaction.client.tempData.apInterfaces.get(interaction.channel.id).unsetPlayer(alias);
-        return interaction.reply(`User ${interaction.user} disassociated from ${alias}.`);
+        channelInterface.unsetPlayer(alias);
+        return interaction.reply(`User ${associatedUser} disassociated from ${alias}.`);
+      },
+    },
+    {
+      commandBuilder: new SlashCommandBuilder()
+        .setName('ap-list-aliases')
+        .setDescription('List all aliases associated with a Discord user')
+        .setDMPermission(false),
+      async execute(interaction) {
+        // Notify the user if there is no game being monitored in the current text channel
+        if (!interaction.client.tempData.apInterfaces.has(interaction.channel.id)) {
+          return interaction.reply({
+            content: 'There is no Archipelago game being monitored in this channel.',
+            ephemeral: true,
+          });
+        }
+
+        let aliases = interaction.client.tempData.apInterfaces.get(interaction.channel.id).getAliases()
+
+        if (aliases.size == 0) {
+          return interaction.reply("No known aliases.");
+        }
+
+        let messageParts = []
+        for (let [alias, user] of aliases) {
+          messageParts.push(`Alias ${alias} is associated with ${user}.`)
+        }
+
+        return interaction.reply(messageParts.join('\n'));
       },
     },
     {
