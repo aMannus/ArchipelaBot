@@ -54,14 +54,6 @@ module.exports = {
               content: `Connected to ${serverAddress} with slot ${slotName}.`,
               ephemeral: false,
             });
-
-            // Automatically disconnect and destroy this interface after six hours
-            return setTimeout(() => {
-              if (interaction.client.tempData.apInterfaces.has(interaction.channel.id)) {
-                interaction.client.tempData.apInterfaces.get(interaction.channel.id).disconnect();
-                interaction.client.tempData.apInterfaces.delete(interaction.channel.id);
-              }
-            }, 21600000);
           }
         }
 
