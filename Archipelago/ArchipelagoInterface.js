@@ -1,5 +1,5 @@
 const { Client, ITEMS_HANDLING_FLAGS, COMMON_TAGS, SERVER_PACKET_TYPE, ConnectionStatus } = require('archipelago.js');
-const { User } = require('discord.js');
+const { User, MessageFlags } = require('discord.js');
 const { v4: uuid } = require('uuid');
 
 class ArchipelagoInterface {
@@ -102,7 +102,10 @@ class ArchipelagoInterface {
 
     // Send messages to TextChannel in batches of five, spaced two seconds apart to avoid rate limit
     while (messages.length > 0) {
-      await this.textChannel.send(messages.splice(0, 5).join('\n'));
+      await this.textChannel.send({
+        content: messages.splice(0, 5).join('\n'),
+        flags: MessageFlags.SuppressNotifications,
+      });
       await new Promise((resolve) => setTimeout(resolve, 2000));
     }
 
