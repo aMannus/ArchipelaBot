@@ -226,7 +226,7 @@ class ArchipelagoInterface {
     let hasKnownAlias = false
     for (let alias of this.players.keys()) {
       if (message.content.includes(alias)) {
-        message.content = message.content.replace(alias, this.players.get(alias));
+        message.content = message.content.replace(alias, '@' + this.players.get(alias).displayName);
         hasKnownAlias = true
       }
     }
