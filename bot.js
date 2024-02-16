@@ -64,3 +64,18 @@ client.once(Events.ClientReady, async () => {
 });
 
 client.login(config.token);
+
+process.on('SIGTERM', () => {
+  console.info('SIGTERM signal received.');
+  gracefulShutdown()
+});
+
+process.on('SIGINT', () => {
+  console.info('SIGINT signal received.');
+  gracefulShutdown()
+});
+
+function gracefulShutdown() {
+  console.log('Disconnecting Archipelago connections.');
+  interaction.client.tempData.apInterfaces.forEach((apInterface) => apInterface.disconnect())
+}
