@@ -1,5 +1,6 @@
 const ArchipelagoInterface = require('../Archipelago/ArchipelagoInterface');
 const { SlashCommandBuilder } = require('discord.js');
+const { AsciiTable3, AlignmentEnum } = require('ascii-table3');
 
 module.exports = {
   category: 'Archipelago',
@@ -129,27 +130,26 @@ module.exports = {
           });
         }
 
-        let channelInterface = interaction.client.tempData.apInterfaces.get(interaction.channel.id)
-        let aliases = channelInterface.getAliases()
-        
-        if (!aliases.has(alias)) {
-          return interaction.reply(`Alias ${alias} is not associated with anyone.`);
+        // Determine if the alias has been set
+        const apInterface = interaction.client.tempData.apInterfaces.get(interaction.channel.id);
+        if (apInterface.players.has(alias)) {
+          // Only the user associated with an alias may unset it
+          if (apInterface.players.get(alias) !== interaction.user) {
+            return interaction.reply('Only the user associated with an alias may unset it.');
+          }
+
+          // Disassociate the user from the specified alias
+          interaction.client.tempData.apInterfaces.get(interaction.channel.id).unsetPlayer(alias);
+          return interaction.reply(`${interaction.user} has been disassociated from ${alias}.`);
         }
-        
-        let associatedUser = aliases.get(alias)
-        if (associatedUser != interaction.user) {
-          return interaction.reply(`Alias ${alias} is associated with ${associatedUser}, not you.`);
-        }
-        
-        // Disassociate the user from the specified alias
-        channelInterface.unsetPlayer(alias);
-        return interaction.reply(`User ${associatedUser} disassociated from ${alias}.`);
+
+        return interaction.reply(`${alias} is not associated with any user.`);
       },
     },
     {
       commandBuilder: new SlashCommandBuilder()
         .setName('ap-list-aliases')
-        .setDescription('List all aliases associated with a Discord user')
+        .setDescription('Display a list of aliases for the game in the current channel')
         .setDMPermission(false),
       async execute(interaction) {
         // Notify the user if there is no game being monitored in the current text channel
@@ -160,18 +160,19 @@ module.exports = {
           });
         }
 
-        let aliases = interaction.client.tempData.apInterfaces.get(interaction.channel.id).getAliases()
-
-        if (aliases.size == 0) {
-          return interaction.reply("No known aliases.");
+        // Display the list of aliases for the current channel's game
+        const aliases = interaction.client.tempData.apInterfaces.get(interaction.channel.id).players;
+        if (aliases.size === 0) {
+          return interaction.reply('No aliases are currently assigned.');
         }
 
-        let messageParts = []
-        for (let [alias, user] of aliases) {
-          messageParts.push(`Alias ${alias} is associated with ${user}.`)
-        }
-
-        return interaction.reply(messageParts.join('\n'));
+        const table = new AsciiTable3()
+          .setHeading('Player', 'Alias')
+          .addRowMatrix(Array.from(aliases, (alias) => [alias[1].displayName || alias[1].username, alias[0]]))
+          .setAlign(1, AlignmentEnum.LEFT)
+          .setAlign(2, AlignmentEnum.RIGHT)
+          .setStyle('compact');
+        return interaction.reply(`\`\`\`${table.toString()}\`\`\``);
       },
     },
     {
