@@ -77,5 +77,6 @@ process.on('SIGINT', () => {
 
 function gracefulShutdown() {
   console.log('Disconnecting Archipelago connections.');
-  interaction.client.tempData.apInterfaces.forEach((apInterface) => apInterface.disconnect())
+  client.tempData.apInterfaces.forEach((apInterface) => apInterface.disconnect())
+  process.exit()
 }
