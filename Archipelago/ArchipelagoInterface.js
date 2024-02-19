@@ -1,4 +1,4 @@
-const { Client, ITEMS_HANDLING_FLAGS, COMMON_TAGS, SERVER_PACKET_TYPE, ConnectionStatus } = require('archipelago.js');
+const { Client, ITEMS_HANDLING_FLAGS, COMMON_TAGS, SERVER_PACKET_TYPE, ConnectionStatus, CLIENT_PACKET_TYPE } = require('archipelago.js');
 const { User, MessageFlags } = require('discord.js');
 const { v4: uuid } = require('uuid');
 
@@ -43,6 +43,9 @@ class ArchipelagoInterface {
       // Set up packet listeners
       // this.APClient.addListener(SERVER_PACKET_TYPE.PRINT, this.printHandler);
       this.APClient.addListener(SERVER_PACKET_TYPE.PRINT_JSON, this.printJSONHandler);
+      this.APClient.addListener(SERVER_PACKET_TYPE.BOUNCED, this.bouncedHandler);
+
+      this.bounceInterval = setInterval(this.bounce, 30000)
 
       // Inform the user ArchipelaBot has connected to the game
       textChannel.send('Connection established.');
@@ -187,6 +190,27 @@ class ArchipelagoInterface {
     this.messageQueue.push(message);
   };
 
+  bounce = async () => {
+    this.APClient.send({
+      cmd: CLIENT_PACKET_TYPE.BOUNCE,
+      slots: [this.APClient.data.slot]
+    })
+    this.bounceFailTimeout = setTimeout(this.bounceFail, 10000)
+  };
+
+  bouncedHandler = async (packet) => {
+    console.log(new Date().toISOString() + " - Bounced received")
+    clearTimeout(this.bounceFailTimeout)
+  };
+
+  bounceFail = async () => {
+    await this.textChannel.send({
+      content: "Bounce did not get a reply, server probably went to sleep.",
+      flags: MessageFlags.SuppressNotifications,
+    });
+    this.disconnect()
+  };
+
   /**
    * Associate a Discord user with a specified alias
    * @param {string} alias
@@ -217,6 +241,7 @@ class ArchipelagoInterface {
   /** Close the WebSocket connection on the ArchipelagoClient object */
   disconnect = () => {
     clearTimeout(this.queueTimeout);
+    clearTimeout(this.bounceInterval);
     this.APClient.disconnect();
   };
 
