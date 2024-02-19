@@ -1,0 +1,36 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "program": "${workspaceFolder}\\bot.js",
+      "request": "launch",
+      "name": "Launch Program",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "node",
+      "program": "${workspaceFolder}\\bot.js",
+      "request": "launch",
+      "name": "Launch Program and stop",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "stopOnEntry": true
+    },
+    {
+      "type": "node",
+      "program": "${workspaceFolder}\\test.js",
+      "request": "launch",
+      "name": "TEST",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+    },
+  ]
+}

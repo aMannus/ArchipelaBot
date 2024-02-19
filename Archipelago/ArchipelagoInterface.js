@@ -141,6 +141,8 @@ class ArchipelagoInterface {
   printJSONHandler = async (packet, rawMessage) => {
     let message = { type: 'chat', content: '', };
 
+    console.log(`printJSON: type:${packet.type} - message:${rawMessage}, - data:${JSON.stringify(packet.data)}`)
+
     if (!['ItemSend', 'ItemCheat', 'Hint'].includes(packet.type)) {
       message.content = rawMessage;
       this.messageQueue.push(message);
