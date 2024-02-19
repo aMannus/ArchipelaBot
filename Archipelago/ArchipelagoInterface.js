@@ -1,4 +1,4 @@
-const { Client, ITEMS_HANDLING_FLAGS, COMMON_TAGS, SERVER_PACKET_TYPE, ConnectionStatus, CLIENT_PACKET_TYPE } = require('archipelago.js');
+const { Client, ITEMS_HANDLING_FLAGS, COMMON_TAGS, SERVER_PACKET_TYPE, ConnectionStatus, CLIENT_PACKET_TYPE, PRINT_JSON_TYPE  } = require('archipelago.js');
 const { User, MessageFlags } = require('discord.js');
 const { v4: uuid } = require('uuid');
 
@@ -143,7 +143,12 @@ class ArchipelagoInterface {
 
     console.log(`printJSON: type:${packet.type} - message:${rawMessage}, - data:${JSON.stringify(packet.data)}`)
 
-    if (!['ItemSend', 'ItemCheat', 'Hint'].includes(packet.type)) {
+    if (packet.type == PRINT_JSON_TYPE.TUTORIAL) {
+      // Ignore
+      return
+    }
+
+    if (![PRINT_JSON_TYPE.ITEM_SEND, PRINT_JSON_TYPE.ITEM_CHEAT, PRINT_JSON_TYPE.HINT].includes(packet.type)) {
       message.content = rawMessage;
       this.messageQueue.push(message);
       return;
