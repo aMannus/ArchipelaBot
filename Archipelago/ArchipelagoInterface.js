@@ -17,6 +17,7 @@ class ArchipelagoInterface {
     this.APClient = new Client();
 
     this.slotName = slotName;
+    this.serverSleeping = false;
 
     // Controls which messages should be printed to the channel
     this.showHints = true;
@@ -194,21 +195,31 @@ class ArchipelagoInterface {
     this.APClient.send({
       cmd: CLIENT_PACKET_TYPE.BOUNCE,
       slots: [this.APClient.data.slot]
-    })
-    this.bounceFailTimeout = setTimeout(this.bounceFail, 10000)
+    });
+    if (!this.serverSleeping) {
+      this.bounceFailTimeout = setTimeout(this.bounceFail, 10000);
+    }
   };
 
   bouncedHandler = async (packet) => {
-    console.log(new Date().toISOString() + " - Bounced received")
-    clearTimeout(this.bounceFailTimeout)
+    console.log(new Date().toISOString() + " - Bounced received");
+    if (this.serverSleeping) {
+      await this.textChannel.send({
+        content: "Bounced received, server woke up.",
+        flags: MessageFlags.SuppressNotifications,
+      });
+      this.serverSleeping = false;
+    }
+    clearTimeout(this.bounceFailTimeout);
   };
 
   bounceFail = async () => {
     await this.textChannel.send({
-      content: "Bounce did not get a reply, server probably went to sleep.",
+      content: "Bounce did not get a reply, server probably went to sleep. Will continue bounces to see if we can detect wakeup.",
       flags: MessageFlags.SuppressNotifications,
     });
-    this.disconnect()
+    this.serverSleeping = true;
+    // this.disconnect();
   };
 
   /**
