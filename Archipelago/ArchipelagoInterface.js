@@ -51,8 +51,11 @@ class ArchipelagoInterface {
       console.error(connectionInfo);
       console.error('With trace:');
       console.error(err);
+      if (Array.isArray(err)) {
+        err = err[0]
+      }
       await this.textChannel.send('A problem occurred while connecting to the AP server:\n' +
-        `\`\`\`${JSON.stringify(err)}\`\`\``);
+        `\`\`\`${err.message}\`\`\``);
     });
   }
 
