@@ -17,7 +17,6 @@ class ArchipelagoInterface {
     this.APClient = new Client();
 
     this.slotName = slotName;
-    this.serverSleeping = false;
 
     // Controls which messages should be printed to the channel
     this.showHints = true;
@@ -38,6 +37,23 @@ class ArchipelagoInterface {
     };
 
     this.APClient.connect(connectionInfo).then(() => {
+      onConnected();
+      // Inform the user ArchipelaBot has connected to the game
+      textChannel.send('Connection established.');
+    }).catch(async (err) => {
+      if (Array.isArray(err)) {
+        err = err[0];
+      }
+      console.error('Error while trying to connect with connectionInfo:');
+      console.error(connectionInfo);
+      console.error('With trace:');
+      console.error(err);
+      await this.textChannel.send('A problem occurred while connecting to the AP server:\n' +
+        `\`\`\`${err.message}\`\`\``);
+    });
+  }
+
+  onConnected = async() => {
       // Start handling queued messages
       this.queueTimeout = setTimeout(this.queueHandler, 5000);
 
@@ -46,22 +62,8 @@ class ArchipelagoInterface {
       this.APClient.addListener(SERVER_PACKET_TYPE.PRINT_JSON, this.printJSONHandler);
       this.APClient.addListener(SERVER_PACKET_TYPE.BOUNCED, this.bouncedHandler);
 
-      this.bounceInterval = setInterval(this.bounce, 30000)
-
-      // Inform the user ArchipelaBot has connected to the game
-      textChannel.send('Connection established.');
-    }).catch(async (err) => {
-      console.error('Error while trying to connect with connectionInfo:');
-      console.error(connectionInfo);
-      console.error('With trace:');
-      console.error(err);
-      if (Array.isArray(err)) {
-        err = err[0]
-      }
-      await this.textChannel.send('A problem occurred while connecting to the AP server:\n' +
-        `\`\`\`${err.message}\`\`\``);
-    });
-  }
+      this.bounceInterval = setInterval(this.bounce, 60000);
+  };
 
   /**
    * Send queued messages to the TextChannel in batches of five or less
@@ -201,32 +203,47 @@ class ArchipelagoInterface {
   bounce = async () => {
     this.APClient.send({
       cmd: CLIENT_PACKET_TYPE.BOUNCE,
-      slots: [this.APClient.data.slot]
+      slots: [this.APClient.data.slot] // Bounce to self
     });
-    if (!this.serverSleeping) {
-      this.bounceFailTimeout = setTimeout(this.bounceFail, 10000);
-    }
+    this.bounceFailTimeout = setTimeout(this.bounceFail, 10000);
   };
 
   bouncedHandler = async (packet) => {
-    console.log(new Date().toISOString() + " - Bounced received");
-    if (this.serverSleeping) {
-      await this.textChannel.send({
-        content: "Bounced received, server woke up.",
-        flags: MessageFlags.SuppressNotifications,
-      });
-      this.serverSleeping = false;
-    }
     clearTimeout(this.bounceFailTimeout);
   };
 
   bounceFail = async () => {
     await this.textChannel.send({
-      content: "Bounce did not get a reply, server probably went to sleep. Will continue bounces to see if we can detect wakeup.",
+      content: "Bounce did not get a reply, server probably went to sleep. Will attempt to reconnect periodically.",
       flags: MessageFlags.SuppressNotifications,
     });
-    this.serverSleeping = true;
-    // this.disconnect();
+    this.disconnect();
+    this.reconnectInterval = setInterval(this.reconnectAttempt, 30000)
+  };
+
+  reconnectAttempt = async () => {
+    this.APClient.connect(connectionInfo).then(() => {
+      clearTimeout(this.reconnectInterval);
+      onConnected();
+      textChannel.send({
+        content: "Connection reestablished.",
+        flags: MessageFlags.SuppressNotifications,
+      });
+    }).catch(async (err) => {
+      if (Array.isArray(err)) {
+        err = err[0];
+      }
+      if (err.error.code != 'ECONNREFUSED') {// Ignore connection refused
+        clearTimeout(this.reconnectInterval);
+        console.error('Error while trying to reconnect with connectionInfo:');
+        console.error(connectionInfo);
+        console.error('With trace:');
+        console.error(err);
+
+        await this.textChannel.send('A problem occurred while attempting to reconnect to the AP server:\n' +
+          `\`\`\`${err.message}\`\`\``);
+      }
+    });
   };
 
   /**
@@ -260,6 +277,7 @@ class ArchipelagoInterface {
   disconnect = () => {
     clearTimeout(this.queueTimeout);
     clearTimeout(this.bounceInterval);
+    clearTimeout(this.reconnectInterval);
     this.APClient.disconnect();
   };
 
