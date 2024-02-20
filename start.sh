@@ -13,7 +13,6 @@ git pull
 
 # Start
 echo "Starting"
-cd src
 nohup node bot.js >../nohup.out 2>&1 &
 sleep 1
 export BOTPID=`ps aux | grep 'bot.js' | grep -v grep | awk '{print($2)}'`
