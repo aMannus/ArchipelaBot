@@ -16,7 +16,10 @@ class ArchipelagoInterface {
     this.players = new Map();
     this.APClient = new Client();
 
+    this.host = host;
+    this.port = port;
     this.slotName = slotName;
+    this.password = password;
 
     // Controls which messages should be printed to the channel
     this.showHints = true;
@@ -25,16 +28,7 @@ class ArchipelagoInterface {
     this.showChat = true;
     this.showNonAliased = true;
 
-    const connectionInfo = {
-      hostname: host,
-      port,
-      uuid: uuid(),
-      game: '',
-      name: slotName,
-      password: password,
-      tags: [COMMON_TAGS.TEXT_ONLY],
-      items_handling: ITEMS_HANDLING_FLAGS.LOCAL_ONLY,
-    };
+    let connectionInfo = this.getConnectionInfo(host, port, slotName, password);
 
     this.APClient.connect(connectionInfo).then(() => {
       this.onConnected();
@@ -52,6 +46,19 @@ class ArchipelagoInterface {
         `\`\`\`${err.message}\`\`\``);
     });
   }
+
+  getConnectionInfo = (host, port, slotName, password) => {
+    return {
+      hostname: host,
+      port,
+      uuid: uuid(),
+      game: '',
+      name: slotName,
+      password: password,
+      tags: [COMMON_TAGS.TEXT_ONLY],
+      items_handling: ITEMS_HANDLING_FLAGS.LOCAL_ONLY,
+    };
+  };
 
   onConnected = async() => {
       // Start handling queued messages
@@ -222,6 +229,7 @@ class ArchipelagoInterface {
   };
 
   reconnectAttempt = async () => {
+    let connectionInfo = this.getConnectionInfo(this.host, this.port, this.slotName, this.password);
     this.APClient.connect(connectionInfo).then(() => {
       clearTimeout(this.reconnectInterval);
       this.onConnected();
