@@ -33,7 +33,10 @@ class ArchipelagoInterface {
     this.APClient.connect(connectionInfo).then(() => {
       this.onConnected();
       // Inform the user ArchipelaBot has connected to the game
-      textChannel.send('Connection established.');
+      textChannel.send({
+        content: 'Connection established.',
+        flags: MessageFlags.SuppressNotifications,
+      });
     }).catch(async (err) => {
       if (Array.isArray(err)) {
         err = err[0];
@@ -42,8 +45,10 @@ class ArchipelagoInterface {
       console.error(connectionInfo);
       console.error('With trace:');
       console.error(err);
-      await this.textChannel.send('A problem occurred while connecting to the AP server:\n' +
-        `\`\`\`${err.message}\`\`\``);
+      await this.textChannel.send({
+        content: 'A problem occurred while connecting to the AP server:\n' + `\`\`\`${err.message}\`\`\``,
+        flags: MessageFlags.SuppressNotifications,
+      });
     });
   }
 
@@ -254,8 +259,10 @@ class ArchipelagoInterface {
         console.error('With trace:');
         console.error(err);
 
-        await this.textChannel.send('A problem occurred while attempting to reconnect to the AP server:\n' +
-          `\`\`\`${err.message}\`\`\``);
+        await this.textChannel.send({
+          content: 'A problem occurred while attempting to reconnect to the AP server:\n' + `\`\`\`${err.message}\`\`\``,
+          flags: MessageFlags.SuppressNotifications,
+        });
       }
     });
   };
