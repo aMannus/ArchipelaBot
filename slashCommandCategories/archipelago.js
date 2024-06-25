@@ -55,14 +55,6 @@ module.exports = {
               content: `Connected to ${serverAddress} with slot ${slotName}.`,
               ephemeral: false,
             });
-
-            // Automatically disconnect and destroy this interface after six hours
-            return setTimeout(() => {
-              if (interaction.client.tempData.apInterfaces.has(interaction.channel.id)) {
-                interaction.client.tempData.apInterfaces.get(interaction.channel.id).disconnect();
-                interaction.client.tempData.apInterfaces.delete(interaction.channel.id);
-              }
-            }, 21600000);
           }
         }
 
@@ -96,7 +88,7 @@ module.exports = {
     {
       commandBuilder: new SlashCommandBuilder()
         .setName('ap-set-alias')
-        .setDescription('Associate your discord user with a specified alias')
+        .setDescription('Associate your Discord user with a specified alias')
         .addStringOption((opt) => opt
           .setName('alias')
           .setDescription('Your new alias')
@@ -121,7 +113,7 @@ module.exports = {
     {
       commandBuilder: new SlashCommandBuilder()
         .setName('ap-unset-alias')
-        .setDescription('Disassociate your discord user with a specified alias')
+        .setDescription('Disassociate your Discord user with a specified alias')
         .addStringOption((opt) => opt
           .setName('alias')
           .setDescription('Alias to disassociate from')
@@ -317,6 +309,42 @@ module.exports = {
         interaction.client.tempData.apInterfaces.get(interaction.channel.id).showItems = false;
         interaction.client.tempData.apInterfaces.get(interaction.channel.id).showProgression = false;
         return interaction.reply('Hiding all item messages.');
+      },
+    },
+    {
+      commandBuilder: new SlashCommandBuilder()
+        .setName('ap-show-non-associated-aliases')
+        .setDescription('Stop filtering messages without an associated alias')
+        .setDMPermission(false),
+      async execute(interaction) {
+        // Notify the user if there is no game being monitored in the current text channel
+        if (!interaction.client.tempData.apInterfaces.has(interaction.channel.id)) {
+          return interaction.reply({
+            content: 'There is no Archipelago game being monitored in this channel.',
+            ephemeral: true,
+          });
+        }
+
+        interaction.client.tempData.apInterfaces.get(interaction.channel.id).showNonAliased = true;
+        return interaction.reply('Stopped filtering messages based on their alias.');
+      },
+    },
+    {
+      commandBuilder: new SlashCommandBuilder()
+        .setName('ap-hide-non-associated-aliases')
+        .setDescription('Hide all messages that are not relevant to aliases set with /ap-set-alias')
+        .setDMPermission(false),
+      async execute(interaction) {
+        // Notify the user if there is no game being monitored in the current text channel
+        if (!interaction.client.tempData.apInterfaces.has(interaction.channel.id)) {
+          return interaction.reply({
+            content: 'There is no Archipelago game being monitored in this channel.',
+            ephemeral: true,
+          });
+        }
+
+        interaction.client.tempData.apInterfaces.get(interaction.channel.id).showNonAliased = false;
+        return interaction.reply('Only showing messages relevant to aliases set with `/ap-set-alias`.');
       },
     },
   ],
