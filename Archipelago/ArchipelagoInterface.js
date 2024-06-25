@@ -19,10 +19,10 @@ class ArchipelagoInterface {
     this.slotName = slotName;
 
     // Controls which messages should be printed to the channel
-    this.showHints = false;
-    this.showItems = false;
+    this.showHints = true;
+    this.showItems = true;
     this.showProgression = true;
-    this.showChat = false;
+    this.showChat = true;
 
     const connectionInfo = {
       hostname: host,
