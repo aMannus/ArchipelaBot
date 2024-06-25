@@ -22,10 +22,10 @@ class ArchipelagoInterface {
     this.password = password;
 
     // Controls which messages should be printed to the channel
-    this.showHints = true;
-    this.showItems = true;
+    this.showHints = false;
+    this.showItems = false;
     this.showProgression = true;
-    this.showChat = true;
+    this.showChat = false;
     this.showNonAliased = true;
 
     let connectionInfo = this.getConnectionInfo(host, port, slotName, password);
