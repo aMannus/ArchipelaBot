@@ -53,7 +53,7 @@ client.on(Events.InteractionCreate, async(interaction) => {
     console.warn(`Unknown slash command received: ${interaction.commandName}`);
     return interaction.reply({
       content: 'Unknown command.', 
-      flags: MessageFlags.SuppressNotifications,
+      ephemeral: true,
     });
   }
 });
