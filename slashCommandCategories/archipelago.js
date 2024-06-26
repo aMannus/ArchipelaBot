@@ -36,6 +36,7 @@ module.exports = {
           return interaction.reply({
             content: 'An Archipelago game is already being monitored in this channel ' +
               'and must be disconnected before a new game can be monitored.',
+            flags: MessageFlags.SuppressNotifications,
             ephemeral: true,
           });
         }
@@ -53,6 +54,7 @@ module.exports = {
             interaction.client.tempData.apInterfaces.set(interaction.channel.id, APInterface);
             await interaction.reply({
               content: `Connected to ${serverAddress} with slot ${slotName}.`,
+              flags: MessageFlags.SuppressNotifications,
               ephemeral: false,
             });
           }
@@ -61,6 +63,7 @@ module.exports = {
         // If the client fails to connect, notify the user
         return interaction.reply({
           content: `Unable to connect to AP server at ${serverAddress}.`,
+          flags: MessageFlags.SuppressNotifications,
           ephemeral: false,
         });
       },
@@ -75,6 +78,7 @@ module.exports = {
         if (!interaction.client.tempData.apInterfaces.has(interaction.channel.id)) {
           return interaction.reply({
             content: 'There is no Archipelago game being monitored in this channel.',
+            flags: MessageFlags.SuppressNotifications,
             ephemeral: true,
           });
         }
@@ -82,7 +86,10 @@ module.exports = {
         // Disconnect the ArchipelagoInterface from the game and destroy the object in tempData
         interaction.client.tempData.apInterfaces.get(interaction.channel.id).disconnect();
         interaction.client.tempData.apInterfaces.delete(interaction.channel.id);
-        return interaction.reply('Disconnected from Archipelago game.');
+        return interaction.reply({
+          content: 'Disconnected from Archipelago game.',
+          flags: MessageFlags.SuppressNotifications,
+        });
       },
     },
     {
@@ -101,13 +108,16 @@ module.exports = {
         if (!interaction.client.tempData.apInterfaces.has(interaction.channel.id)) {
           return interaction.reply({
             content: 'There is no Archipelago game being monitored in this channel.',
+            flags: MessageFlags.SuppressNotifications,
             ephemeral: true,
           });
         }
 
         // Associate the user with the specified alias
         interaction.client.tempData.apInterfaces.get(interaction.channel.id).setPlayer(alias, interaction.user);
-        return interaction.reply(`Associated ${interaction.user} with alias ${alias}.`);
+        return interaction.reply({
+          content: `Associated ${interaction.user} with alias ${alias}.`,
+          flags: MessageFlags.SuppressNotifications,});
       },
     },
     {
@@ -126,6 +136,7 @@ module.exports = {
         if (!interaction.client.tempData.apInterfaces.has(interaction.channel.id)) {
           return interaction.reply({
             content: 'There is no Archipelago game being monitored in this channel.',
+            flags: MessageFlags.SuppressNotifications,
             ephemeral: true,
           });
         }
@@ -135,15 +146,24 @@ module.exports = {
         if (apInterface.players.has(alias)) {
           // Only the user associated with an alias may unset it
           if (apInterface.players.get(alias) !== interaction.user) {
-            return interaction.reply('Only the user associated with an alias may unset it.');
+            return interaction.reply({
+              content: 'Only the user associated with an alias may unset it.',
+              flags: MessageFlags.SuppressNotifications,
+            });
           }
 
           // Disassociate the user from the specified alias
           interaction.client.tempData.apInterfaces.get(interaction.channel.id).unsetPlayer(alias);
-          return interaction.reply(`${interaction.user} has been disassociated from ${alias}.`);
+          return interaction.reply({
+            content: `${interaction.user} has been disassociated from ${alias}.`,
+            flags: MessageFlags.SuppressNotifications,
+          });
         }
 
-        return interaction.reply(`${alias} is not associated with any user.`);
+        return interaction.reply({
+          content: `${alias} is not associated with any user.`,
+          flags: MessageFlags.SuppressNotifications,
+        });
       },
     },
     {
@@ -156,6 +176,7 @@ module.exports = {
         if (!interaction.client.tempData.apInterfaces.has(interaction.channel.id)) {
           return interaction.reply({
             content: 'There is no Archipelago game being monitored in this channel.',
+            flags: MessageFlags.SuppressNotifications,
             ephemeral: true,
           });
         }
@@ -163,7 +184,10 @@ module.exports = {
         // Display the list of aliases for the current channel's game
         const aliases = interaction.client.tempData.apInterfaces.get(interaction.channel.id).players;
         if (aliases.size === 0) {
-          return interaction.reply('No aliases are currently assigned.');
+          return interaction.reply({
+            content: 'No aliases are currently assigned.',
+            flags: MessageFlags.SuppressNotifications,
+          });
         }
 
         const table = new AsciiTable3()
@@ -172,7 +196,10 @@ module.exports = {
           .setAlign(1, AlignmentEnum.LEFT)
           .setAlign(2, AlignmentEnum.RIGHT)
           .setStyle('compact');
-        return interaction.reply(`\`\`\`${table.toString()}\`\`\``);
+        return interaction.reply({
+          content: `\`\`\`${table.toString()}\`\`\``,
+          flags: MessageFlags.SuppressNotifications,
+        });
       },
     },
     {
@@ -185,13 +212,17 @@ module.exports = {
         if (!interaction.client.tempData.apInterfaces.has(interaction.channel.id)) {
           return interaction.reply({
             content: 'There is no Archipelago game being monitored in this channel.',
+            flags: MessageFlags.SuppressNotifications,
             ephemeral: true,
           });
         }
 
         // Set the APInterface to show chat messages
         interaction.client.tempData.apInterfaces.get(interaction.channel.id).showChat = true;
-        return interaction.reply('Showing normal chat messages.');
+        return interaction.reply({
+          content: 'Showing normal chat messages.',
+          flags: MessageFlags.SuppressNotifications,
+        });
       },
     },
     {
@@ -204,13 +235,17 @@ module.exports = {
         if (!interaction.client.tempData.apInterfaces.has(interaction.channel.id)) {
           return interaction.reply({
             content: 'There is no Archipelago game being monitored in this channel.',
+            flags: MessageFlags.SuppressNotifications,
             ephemeral: true,
           });
         }
 
         // Set the APInterface to show chat messages
         interaction.client.tempData.apInterfaces.get(interaction.channel.id).showChat = false;
-        return interaction.reply('Hiding normal chat messages.');
+        return interaction.reply({
+          content: 'Hiding normal chat messages.',
+          flags: MessageFlags.SuppressNotifications,
+        });
       },
     },
     {
@@ -223,13 +258,17 @@ module.exports = {
         if (!interaction.client.tempData.apInterfaces.has(interaction.channel.id)) {
           return interaction.reply({
             content: 'There is no Archipelago game being monitored in this channel.',
+            flags: MessageFlags.SuppressNotifications,
             ephemeral: true,
           });
         }
 
         // Set the APInterface to show chat messages
         interaction.client.tempData.apInterfaces.get(interaction.channel.id).showHints = true;
-        return interaction.reply('Showing hints.');
+        return interaction.reply({
+          content: 'Showing hints.',
+          flags: MessageFlags.SuppressNotifications,
+        });
       },
     },
     {
@@ -242,13 +281,17 @@ module.exports = {
         if (!interaction.client.tempData.apInterfaces.has(interaction.channel.id)) {
           return interaction.reply({
             content: 'There is no Archipelago game being monitored in this channel.',
+            flags: MessageFlags.SuppressNotifications,
             ephemeral: true,
           });
         }
 
         // Set the APInterface to show chat messages
         interaction.client.tempData.apInterfaces.get(interaction.channel.id).showHints = false;
-        return interaction.reply('Hiding hints.');
+        return interaction.reply({
+          content: 'Hiding hints.',
+          flags: MessageFlags.SuppressNotifications,
+        });
       },
     },
     {
@@ -261,6 +304,7 @@ module.exports = {
         if (!interaction.client.tempData.apInterfaces.has(interaction.channel.id)) {
           return interaction.reply({
             content: 'There is no Archipelago game being monitored in this channel.',
+            flags: MessageFlags.SuppressNotifications,
             ephemeral: true,
           });
         }
@@ -268,7 +312,10 @@ module.exports = {
         // Set the APInterface to show chat messages
         interaction.client.tempData.apInterfaces.get(interaction.channel.id).showItems = false;
         interaction.client.tempData.apInterfaces.get(interaction.channel.id).showProgression = true;
-        return interaction.reply('Showing progression.');
+        return interaction.reply({
+          content: 'Showing progression.',
+          flags: MessageFlags.SuppressNotifications,
+        });
       },
     },
     {
@@ -281,6 +328,7 @@ module.exports = {
         if (!interaction.client.tempData.apInterfaces.has(interaction.channel.id)) {
           return interaction.reply({
             content: 'There is no Archipelago game being monitored in this channel.',
+            flags: MessageFlags.SuppressNotifications,
             ephemeral: true,
           });
         }
@@ -288,7 +336,10 @@ module.exports = {
         // Set the APInterface to show chat messages
         interaction.client.tempData.apInterfaces.get(interaction.channel.id).showItems = true;
         interaction.client.tempData.apInterfaces.get(interaction.channel.id).showProgression = true;
-        return interaction.reply('Showing all item messages.');
+        return interaction.reply({
+          content: 'Showing all item messages.',
+          flags: MessageFlags.SuppressNotifications,
+        });
       },
     },
     {
@@ -301,6 +352,7 @@ module.exports = {
         if (!interaction.client.tempData.apInterfaces.has(interaction.channel.id)) {
           return interaction.reply({
             content: 'There is no Archipelago game being monitored in this channel.',
+            flags: MessageFlags.SuppressNotifications,
             ephemeral: true,
           });
         }
@@ -308,7 +360,10 @@ module.exports = {
         // Set the APInterface to show chat messages
         interaction.client.tempData.apInterfaces.get(interaction.channel.id).showItems = false;
         interaction.client.tempData.apInterfaces.get(interaction.channel.id).showProgression = false;
-        return interaction.reply('Hiding all item messages.');
+        return interaction.reply({
+          content: 'Hiding all item messages.',
+          flags: MessageFlags.SuppressNotifications,
+        });
       },
     },
     {
@@ -321,12 +376,16 @@ module.exports = {
         if (!interaction.client.tempData.apInterfaces.has(interaction.channel.id)) {
           return interaction.reply({
             content: 'There is no Archipelago game being monitored in this channel.',
+            flags: MessageFlags.SuppressNotifications,
             ephemeral: true,
           });
         }
 
         interaction.client.tempData.apInterfaces.get(interaction.channel.id).showNonAliased = true;
-        return interaction.reply('Stopped filtering messages based on their alias.');
+        return interaction.reply({
+          content: 'Stopped filtering messages based on their alias.',
+          flags: MessageFlags.SuppressNotifications,
+        });
       },
     },
     {
@@ -339,12 +398,16 @@ module.exports = {
         if (!interaction.client.tempData.apInterfaces.has(interaction.channel.id)) {
           return interaction.reply({
             content: 'There is no Archipelago game being monitored in this channel.',
+            flags: MessageFlags.SuppressNotifications,
             ephemeral: true,
           });
         }
 
         interaction.client.tempData.apInterfaces.get(interaction.channel.id).showNonAliased = false;
-        return interaction.reply('Only showing messages relevant to aliases set with `/ap-set-alias`.');
+        return interaction.reply({
+          content: 'Only showing messages relevant to aliases set with `/ap-set-alias`.',
+          flags: MessageFlags.SuppressNotifications,
+        });
       },
     },
   ],

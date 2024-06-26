@@ -51,7 +51,10 @@ client.on(Events.InteractionCreate, async(interaction) => {
 
     // If this slash command has no known listener, notify the user and log a warning
     console.warn(`Unknown slash command received: ${interaction.commandName}`);
-    return interaction.reply('Unknown command.');
+    return interaction.reply({
+      content: 'Unknown command.', 
+      flags: MessageFlags.SuppressNotifications,
+    });
   }
 });
 

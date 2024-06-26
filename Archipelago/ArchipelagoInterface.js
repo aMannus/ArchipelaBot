@@ -232,7 +232,7 @@ class ArchipelagoInterface {
 
   bounceFail = async () => {
     await this.textChannel.send({
-      content: "Bounce did not get a reply, server probably went to sleep. Will attempt to reconnect periodically.",
+      content: "Connection lost, periodically trying to reconnect.",
       flags: MessageFlags.SuppressNotifications,
     });
     this.disconnect();
@@ -244,7 +244,7 @@ class ArchipelagoInterface {
     this.APClient.connect(connectionInfo).then(() => {
       clearTimeout(this.reconnectInterval);
       this.onConnected();
-      textChannel.send({
+      this.textChannel.send({
         content: "Connection reestablished.",
         flags: MessageFlags.SuppressNotifications,
       });
