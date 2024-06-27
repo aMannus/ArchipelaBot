@@ -180,12 +180,12 @@ class ArchipelagoInterface {
 
       switch(part.type){
         case 'player_id':
-          message.content += '\u001b[1;34m'+this.APClient.players.alias(parseInt(part.text, 10))+'\u001b[0m';
+          message.content += '\u001b[1;34m '+this.APClient.players.alias(parseInt(part.text, 10))+' \u001b[0m';
           break;
 
         case 'item_id':
           const itemName = this.APClient.players.get(packet.receiving).item(parseInt(part.text, 10));
-          message.content += `\u001b[1;36m${itemName}\u001b[0m`;
+          message.content += `\u001b[1;36m ${itemName} \u001b[0m`;
 
           // Identify this message as containing an item
           if (message.type !== 'progression') { message.type = 'item'; }
@@ -196,7 +196,7 @@ class ArchipelagoInterface {
 
         case 'location_id':
           const locationName = this.APClient.players.get(packet.item.player).location(parseInt(part.text, 10));
-          message.content += `\u001b[1;31m${locationName}\u001b[0m`;
+          message.content += `\u001b[1;31m ${locationName} \u001b[0m`;
           break;
 
         case 'color':
