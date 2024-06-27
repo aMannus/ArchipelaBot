@@ -32,11 +32,6 @@ class ArchipelagoInterface {
 
     this.APClient.connect(connectionInfo).then(() => {
       this.onConnected();
-      // Inform the user ArchipelaBot has connected to the game
-      textChannel.send({
-        content: 'Connection established.',
-        flags: MessageFlags.SuppressNotifications,
-      });
     }).catch(async (err) => {
       if (Array.isArray(err)) {
         err = err[0];
@@ -245,7 +240,7 @@ class ArchipelagoInterface {
       clearTimeout(this.reconnectInterval);
       this.onConnected();
       this.textChannel.send({
-        content: "Connection reestablished.",
+        content: "Connection re-established.",
         flags: MessageFlags.SuppressNotifications,
       });
     }).catch(async (err) => {
