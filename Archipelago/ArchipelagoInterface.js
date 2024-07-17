@@ -226,10 +226,12 @@ class ArchipelagoInterface {
   };
 
   bounceFail = async () => {
+    /*
     await this.textChannel.send({
       content: "Connection lost, periodically trying to reconnect.",
       flags: MessageFlags.SuppressNotifications,
     });
+    */
     this.disconnect();
     this.reconnectInterval = setInterval(this.reconnectAttempt, 30000)
   };
@@ -239,10 +241,12 @@ class ArchipelagoInterface {
     this.APClient.connect(connectionInfo).then(() => {
       clearTimeout(this.reconnectInterval);
       this.onConnected();
+      /*
       this.textChannel.send({
         content: "Connection re-established.",
         flags: MessageFlags.SuppressNotifications,
       });
+      */
     }).catch(async (err) => {
       if (Array.isArray(err)) {
         err = err[0];
@@ -256,7 +260,6 @@ class ArchipelagoInterface {
 
         await this.textChannel.send({
           content: 'A problem occurred while attempting to reconnect to the AP server:\n' + `\`\`\`${err.message}\`\`\``,
-          flags: MessageFlags.SuppressNotifications,
         });
       }
     });
