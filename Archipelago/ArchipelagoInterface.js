@@ -57,6 +57,7 @@ class ArchipelagoInterface {
       password: password,
       tags: [COMMON_TAGS.TEXT_ONLY],
       items_handling: ITEMS_HANDLING_FLAGS.LOCAL_ONLY,
+      version: { major: 0, minor: 6, build: 2 },
     };
   };
 
